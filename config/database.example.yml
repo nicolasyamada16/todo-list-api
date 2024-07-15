@@ -1,0 +1,27 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8mb4
+  host: <%= ENV["MYSQL_DB_HOST"] || 'localhost' %>
+  username: <%= ENV["MYSQL_ROOT_NAME"] || 'root' %>
+  password: <%= ENV["MYSQL_ROOT_PASSWORD"] || '12345678' %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+development:
+  <<: *default
+  database: <%= ENV["MYSQL_DATABASE"] || 'api_template_development' %>
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  database: <%= ENV["MYSQL_DATABASE"] || 'api_template_test' %>
+
+staging:
+  <<: *default
+  database: <%= ENV["MYSQL_DATABASE"] || 'api_template_staging' %>
+
+production:
+  <<: *default
+  database: <%= ENV["MYSQL_DATABASE"] || 'api_template_production' %>

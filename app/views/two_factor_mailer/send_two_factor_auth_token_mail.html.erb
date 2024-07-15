@@ -1,0 +1,28 @@
+<div style="background-color: gray; border-radius: 4px; width: 800px; height: 414px;">
+  <div style="width: 700px; background-color: white; border-radius: 6px; position: absolute; left: 55px; top: 40px;">
+    <div style="padding: 20px">
+      <p style="margin:20px 0;">
+        <%= I18n.t('mail.two_factor.content.hello') %>
+        <strong style="font-size:17px;"><%= @user.name %></strong>
+      </p>
+
+      <p style="margin:20px 0;">
+        <%= I18n.t('mail.two_factor.content.we_received_an_solicitation') %>
+        <%= I18n.t('mail.two_factor.content.if_you_dont_ignore') %>
+      </p>
+
+      <p style="margin:20px 0;">
+        <%= I18n.t('mail.two_factor.content.use_this_token') %>
+        <%= I18n.t('mail.two_factor.content.validation', minutes: User::TWO_FACTOR_AUTH_TOKEN_LIFETIME_IN_MINUTES).html_safe %>
+      </p>
+
+      <p style="text-align:center;font-size:22px;padding:12px 18px;color:#fff;background-color: #23222d;width: 120px;margin:0 auto;">
+        <%= @token %>
+      </p>
+
+      <p style="margin:20px 0;">
+        <%= I18n.t('mail.two_factor.content.change_your_password').html_safe %>
+      </p>
+    </div>
+  </div>
+</div>

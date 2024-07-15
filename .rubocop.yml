@@ -1,0 +1,145 @@
+AllCops:
+  SuggestExtensions: false
+  NewCops: enable
+  Exclude:
+    - "db/**/*"
+    - "config/**/*"
+    - "script/**/*"
+    - "test/**"
+    - "Gemfile"
+    - "bin/*"
+    - "node_modules/**/*"
+
+# METRICS
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/factories/**"
+    - "app/models/concerns/rails_admin/*"
+
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/MethodLength:
+  Max: 15
+
+# STYLES
+
+
+
+Style/RescueStandardError:
+  EnforcedStyle: implicit
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
+
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: never
+
+Style/SignalException:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: true
+  EnforcedStyle: assign_inside_condition
+  IncludeTernaryExpressions: false
+
+Style/BlockDelimiters:
+  Enabled: true
+  EnforcedStyle: line_count_based
+
+Style/ClassCheck:
+  Enabled: true
+  EnforcedStyle: is_a?
+
+Style/EmptyMethod:
+  Enabled: true
+  EnforcedStyle: expanded
+
+Style/FloatDivision:
+  Enabled: true
+  EnforcedStyle: fdiv
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/Lambda:
+  Enabled: false
+
+Style/RegexpLiteral:
+  Exclude:
+    - "lib/git/danger/helper.rb"
+
+# LAYOUTS
+
+Layout/LineLength:
+  Max: 150
+  Exclude:
+    - "app/models/**/*"
+
+Layout/IndentationStyle:
+  Enabled: true
+
+Layout/EmptyLinesAroundClassBody:
+  Enabled: true
+  EnforcedStyle: ending_only
+
+Layout/ClassStructure:
+  Enabled: true
+  Categories:
+    association:
+      - has_many
+      - has_one
+      - belongs_to
+    module_inclusion:
+      - include
+      - extend
+      - prepend
+    macros:
+      - validates
+      - validate
+  ExpectedOrder:
+    - module_inclusion
+    - constants
+    - association
+    - macros
+    - public_class_methods
+    - initializer
+    - instance_methods
+    - private_methods
+    - protected_methods
+
+# Trailing white space is meaningful in code examples
+Layout/TrailingWhitespace:
+  AllowInHeredoc: true
+
+Layout/SpaceInLambdaLiteral:
+  EnforcedStyle: require_space
+
+# LINTS
+
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - "spec/**/*.rb"
+
+Lint/InterpolationCheck:
+  Exclude:
+    - "spec/**/*.rb"
+
+Lint/Debugger:
+  Enabled: true
+
+Lint/MissingSuper:
+  Enabled: false
+
+# NAMES
+Naming/PredicateName:
+  ForbiddenPrefixes: []
+
+Naming/AsciiIdentifiers:
+  Enabled: true
+  Exclude:
+    - "features/step_definitions/**/*.rb"

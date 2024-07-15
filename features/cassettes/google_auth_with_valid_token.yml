@@ -1,0 +1,113 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://oauth2.googleapis.com/token
+    body:
+      encoding: UTF-8
+      string: '{"client_secret":"<google_client_secret>","redirect_uri":"<google_redirect_uri>","client_id":"<google_client_id>","grant_type":"authorization_code","code":"<google_authorization_code>"}'
+    headers:
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 28 Dec 2022 14:18:20 GMT
+      Pragma:
+      - no-cache
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - Mon, 01 Jan 1990 00:00:00 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443";
+        ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: |-
+        {
+          "access_token": "<google_access_token>",
+          "expires_in": 3584,
+          "scope": "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+          "token_type": "Bearer",
+          "id_token": "<google_token_id>"
+        }
+  recorded_at: Wed, 28 Dec 2022 14:18:20 GMT
+- request:
+    method: get
+    uri: https://www.googleapis.com/userinfo/v2/me
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - Bearer <google_access_token>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Date:
+      - Wed, 28 Dec 2022 14:18:20 GMT
+      Expires:
+      - Mon, 01 Jan 1990 00:00:00 GMT
+      Pragma:
+      - no-cache
+      Content-Type:
+      - application/json; charset=UTF-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Server:
+      - ESF
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443";
+        ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        ewogICJpZCI6ICIxMDc1Mzg3MzQwODM1MTcxOTY5NjkiLAogICJlbWFpbCI6ICJjYXNzaW9mb250b3VyYUBqZXJhLmNvbS5iciIsCiAgInZlcmlmaWVkX2VtYWlsIjogdHJ1ZSwKICAibmFtZSI6ICJDw6Fzc2lvIE1hcnRpbnMgUGVyZWlyYSBGb250b3VyYSIsCiAgImdpdmVuX25hbWUiOiAiQ8Ohc3NpbyAiLAogICJmYW1pbHlfbmFtZSI6ICJNYXJ0aW5zIFBlcmVpcmEgRm9udG91cmEiLAogICJwaWN0dXJlIjogImh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FFZEZUcDdYNmVBUEVkQXhVSURLc0oxRnc0VW1FakwtbnY3RDhJQ0NSNHN6PXM5Ni1jIiwKICAibG9jYWxlIjogInB0LUJSIiwKICAiaGQiOiAiamVyYS5jb20uYnIiCn0K
+  recorded_at: Wed, 28 Dec 2022 14:18:21 GMT
+recorded_with: VCR 6.1.0

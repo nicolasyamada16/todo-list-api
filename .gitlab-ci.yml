@@ -1,0 +1,166 @@
+stages:
+  - Build
+  - Lint
+  - Test
+  - Publish
+  - Deploy
+
+variables:
+  GEMSET_NAME: api_template
+  MYSQL_DATABASE: api_template
+  MYSQL_ROOT_NAME: root
+  MYSQL_ROOT_PASSWORD: root
+  DB_HOST: mysql
+  REDIS_URL: redis://redis:6379
+  PRONTO_GITLAB_API_PRIVATE_TOKEN: yZ8FbwAp-RRSfsAZAY-B # Pronto token bot
+  PRONTO_GITLAB_API_ENDPOINT: "https://gitlab.com/api/v4"
+  RUBY_VERSION: 3.1.3
+  CURRENT_IMAGE: "$CI_REGISTRY_IMAGE:$CI_MERGE_REQUEST_ID"
+  STABLE_IMAGE: "$CI_REGISTRY_IMAGE:stable"
+  DOCKER_REGISTRY: 278174625417.dkr.ecr.us-east-1.amazonaws.com
+  AWS_DEFAULT_REGION: us-east-1
+  APP_NAME: api_template
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
+#### Testing Build ####
+.docker:
+  needs: []
+  image: docker:stable
+  allow_failure: true
+  only:
+    - merge_requests
+  services:
+    - name: docker:dind
+      entrypoint: ["env", "-u", "DOCKER_HOST"]
+      command: ["dockerd-entrypoint.sh"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    # See https://github.com/docker-library/docker/pull/166
+    DOCKER_TLS_CERTDIR: ""
+
+build:
+  extends: .docker
+  stage: Build
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login registry.gitlab.com -u "$CI_REGISTRY_USER" --password-stdin
+    - docker pull $STABLE_IMAGE || true
+    - docker images
+    - docker build --cache-from $STABLE_IMAGE -t $STABLE_IMAGE .
+    - docker push $STABLE_IMAGE
+
+#### Testing Lint ####
+
+
+pronto:
+  stage: Lint
+  needs: [build]
+  image: $STABLE_IMAGE
+  allow_failure: true
+  only:
+    - merge_requests
+  script:
+    - cp Gemfile.pronto Gemfile
+    - rm Gemfile.lock
+    - gem install bundler
+    - bundle install -j $(nproc)
+    - git fetch --depth=500
+    - bundle exec pronto run -f gitlab_mr -c origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+
+#### Testing stuff ####
+.default_test_script: &default_test_script
+  - cp config/database.gitlab-ci.yml config/database.yml
+  - bundle install -j $(nproc)
+  - bundle exec rails db:drop db:create db:migrate RAILS_ENV=test
+
+.test-config-template: &test-config-template
+  image: $STABLE_IMAGE
+  stage: Test
+  allow_failure: false
+  services:
+    - mysql:5.7
+    - redis:4.0-alpine
+
+cucumber:
+  extends: .test-config-template
+  needs: [build]
+  script:
+    - *default_test_script
+    - bundle exec cucumber
+  only:
+    - merge_requests
+
+rspec:
+  extends: .test-config-template
+  needs: [build]
+  script:
+    - *default_test_script
+    - bundle exec rspec
+  only:
+    - merge_requests
+
+testing-for-deploy:
+  extends: .test-config-template
+  needs: []
+  script:
+    - *default_test_script
+    - bundle exec cucumber
+    - bundle exec rspec
+  only:
+    - develop
+    - main
+
+.deploy:
+  image: registry.gitlab.com/jera-software/jera-dockers/jera_image:latest
+  stage: Deploy
+  needs: [testing-for-deploy]
+  script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SERVER_PRIVATE_KEY")
+    - ssh-add -l
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - gem install mina
+    - mina deploy:force_unlock ENV="$DEST_ENV"
+    - mina setup ENV="$DEST_ENV"
+    - mina deploy ENV="$DEST_ENV"
+
+.language-script: &language-script
+  - apt-get update >/dev/null
+  - apt-get install -y locales >/dev/null
+  - echo "en_US UTF-8" > /etc/locale.gen
+  - locale-gen en_US.UTF-8
+  - export LANG=en_US.UTF-8
+  - export LANGUAGE=en_US:en
+  - export LC_ALL=en_US.UTF-8
+
+
+publish-staging:
+  stage: Publish
+  needs: [testing-for-deploy]
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  only:
+    - develop
+  services:
+    - docker:dind
+  before_script:
+    - export RAILS_ENV=staging
+    - amazon-linux-extras install docker
+    - aws --version
+    - docker --version
+  script:
+    - docker build -t $DOCKER_REGISTRY/$APP_NAME:staging . -f docker/release/Dockerfile
+    - aws ecr get-login-password | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+    - docker push $DOCKER_REGISTRY/$APP_NAME:staging
+
+production:
+  extends: .deploy
+  before_script:
+    - *language-script
+    - export DEST_ENV="production"
+  only:
+    - main

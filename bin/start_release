@@ -1,0 +1,5 @@
+beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
+
+bundle exec rails db:migrate
+cp -r public/* started-public/
+bundle exec puma -C config/puma.rb
